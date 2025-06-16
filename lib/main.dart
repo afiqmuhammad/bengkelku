@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
         '/tambah-barang': (context) => const TambahBarangScreen(),
         '/home': (context) => const HomeScreen(),
         '/daftar-barang': (context) => const DaftarBarangScreen(),
-        '/tambah-barang': (context) => const TambahBarangScreen(),
+      
     
       },
     );
