@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Bengkel Stecu',
+      title: 'Bengkelku',
       theme: ThemeData(primarySwatch: Colors.teal),
       initialRoute: '/login',
       routes: {
