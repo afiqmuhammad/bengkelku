@@ -3,6 +3,8 @@ import 'config/supabase_config.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
 
+import 'screens/daftar_barang_screen.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SupabaseConfig.init();
@@ -21,6 +23,8 @@ class MyApp extends StatelessWidget {
       routes: {
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
+
+      '/daftar-barang': (context) => const DaftarBarangScreen()
     
       },
     );
