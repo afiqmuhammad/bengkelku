@@ -31,6 +31,8 @@ dependencies:
   supabase_flutter: ^2.9.1
   flutter:
     sdk: flutter
+  charts_flutter:
+  image_picker:
   fl_chart: ^0.66.0
   intl: 0.17.0
 
