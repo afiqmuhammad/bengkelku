@@ -117,67 +117,153 @@ class _DaftarBarangScreenState extends State<DaftarBarangScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Daftar Barang")),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: TextField(
-              controller: _searchController,
-              onChanged: (val) => _loadBarang(val),
-              decoration: InputDecoration(
-                hintText: "Cari nama barang...",
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+      backgroundColor: const Color(0xFFF5F6FA),
+      appBar: AppBar(
+        title: const Text("Daftar Barang"),
+        backgroundColor: Colors.blue.shade700,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
+        titleTextStyle: const TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      body: Center(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(18),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 12,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Center(
+                    child: CircleAvatar(
+                      radius: 40,
+                      backgroundColor: Colors.blue.shade100,
+                      child: ClipOval(
+                        child: Image.asset(
+                          'assets/logo.png',
+                          width: 56,
+                          height: 56,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  TextField(
+                    controller: _searchController,
+                    onChanged: (val) => _loadBarang(val),
+                    decoration: InputDecoration(
+                      hintText: "Cari nama barang...",
+                      prefixIcon: const Icon(Icons.search),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey[100],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  _loading
+                      ? const Center(child: CircularProgressIndicator())
+                      : _barangList.isEmpty
+                      ? const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 32),
+                        child: Text(
+                          "Belum ada barang.",
+                          style: TextStyle(fontSize: 16, color: Colors.grey),
+                        ),
+                      )
+                      : ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: _barangList.length,
+                        itemBuilder: (context, index) {
+                          final item = _barangList[index];
+                          return Card(
+                            elevation: 2,
+                            margin: const EdgeInsets.symmetric(vertical: 8),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: ListTile(
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 12,
+                              ),
+                              leading:
+                                  item['gambar_url'] != null
+                                      ? ClipRRect(
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: Image.network(
+                                          item['gambar_url'],
+                                          width: 50,
+                                          height: 50,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      )
+                                      : CircleAvatar(
+                                        backgroundColor: Colors.blue.shade100,
+                                        child: Icon(
+                                          Icons.inventory,
+                                          color: Colors.blue.shade700,
+                                        ),
+                                        radius: 25,
+                                      ),
+                              title: Text(
+                                item['nama_barang'],
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              subtitle: Padding(
+                                padding: const EdgeInsets.only(top: 4),
+                                child: Text(
+                                  "Kode: ${item['kode_barang']} • Stok: ${item['jumlah_stok']} • Harga: Rp${item['harga']}",
+                                  style: const TextStyle(fontSize: 13),
+                                ),
+                              ),
+                              trailing: PopupMenuButton<String>(
+                                onSelected: (val) {
+                                  if (val == 'edit') _editBarang(item);
+                                  if (val == 'keluar') _keluarkanBarang(item);
+                                },
+                                itemBuilder:
+                                    (_) => [
+                                      const PopupMenuItem(
+                                        value: 'edit',
+                                        child: Text("Edit"),
+                                      ),
+                                      const PopupMenuItem(
+                                        value: 'keluar',
+                                        child: Text("Keluarkan"),
+                                      ),
+                                    ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                ],
               ),
             ),
           ),
-          Expanded(
-            child:
-                _loading
-                    ? const Center(child: CircularProgressIndicator())
-                    : ListView.builder(
-                      itemCount: _barangList.length,
-                      itemBuilder: (context, index) {
-                        final item = _barangList[index];
-                        return ListTile(
-                          leading:
-                              item['gambar_url'] != null
-                                  ? Image.network(
-                                    item['gambar_url'],
-                                    width: 50,
-                                    height: 50,
-                                    fit: BoxFit.cover,
-                                  )
-                                  : const Icon(Icons.inventory),
-                          title: Text(item['nama_barang']),
-                          subtitle: Text(
-                            "Kode: ${item['kode_barang']} • Stok: ${item['jumlah_stok']} • Harga: Rp${item['harga']}",
-                          ),
-                          trailing: PopupMenuButton<String>(
-                            onSelected: (val) {
-                              if (val == 'edit') _editBarang(item);
-                              if (val == 'keluar') _keluarkanBarang(item);
-                            },
-                            itemBuilder:
-                                (_) => [
-                                  const PopupMenuItem(
-                                    value: 'edit',
-                                    child: Text("Edit"),
-                                  ),
-                                  const PopupMenuItem(
-                                    value: 'keluar',
-                                    child: Text("Keluarkan"),
-                                  ),
-                                ],
-                          ),
-                        );
-                      },
-                    ),
-          ),
-        ],
+        ),
       ),
     );
   }
