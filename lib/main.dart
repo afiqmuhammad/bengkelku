@@ -6,6 +6,7 @@ import 'screens/tambah_barang_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/daftar_barang_screen.dart';
 import 'screens/riwayat_screen.dart';
+import 'screens/splash/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,8 +22,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Bengkelku',
       theme: ThemeData(primarySwatch: Colors.teal),
-      initialRoute: '/login',
+      initialRoute: '/splash',
       routes: {
+        '/splash': (context) => const SplashScreen(),
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
         '/tambah-barang': (context) => const TambahBarangScreen(),
