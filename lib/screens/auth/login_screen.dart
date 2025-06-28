@@ -143,6 +143,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
+                              color: Colors.white, // Ubah warna teks jadi putih
                             ),
                           ),
                         ),
