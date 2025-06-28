@@ -13,7 +13,7 @@ class HomeScreen extends StatelessWidget {
         backgroundColor: Colors.blue.shade700,
         elevation: 4,
         title: const Text(
-          'Bengkel Stecu',
+          'Bengkelku',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         actions: [
@@ -26,58 +26,83 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Menambahkan judul dan subjudul seperti di RegisterScreen
-            Padding(
-              padding: const EdgeInsets.only(left: 8.0, bottom: 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Menu Utama",
-                    style: TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blue.shade700,
+      body: Center(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Logo bulat di atas
+                CircleAvatar(
+                  radius: 44,
+                  backgroundColor: Colors.blue.shade100,
+                  child: ClipOval(
+                    child: Image.asset(
+                      'assets/logo.png',
+                      width: 60,
+                      height: 60,
+                      fit: BoxFit.cover,
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    "Pilih salah satu menu di bawah ini",
-                    style: TextStyle(fontSize: 16, color: Colors.black54),
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  "Menu Utama",
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue.shade700,
+                    letterSpacing: 1.2,
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  "Pilih salah satu menu di bawah ini",
+                  style: TextStyle(fontSize: 16, color: Colors.black54),
+                ),
+                const SizedBox(height: 32),
+                GridView.count(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 18,
+                  mainAxisSpacing: 18,
+                  childAspectRatio: 1,
+                  children: [
+                    _menuItem(
+                      context,
+                      Icons.add_box,
+                      'Tambah Barang',
+                      '/tambah-barang',
+                      Colors.teal,
+                    ),
+                    _menuItem(
+                      context,
+                      Icons.list,
+                      'Daftar Barang',
+                      '/daftar-barang',
+                      Colors.orange,
+                    ),
+                    _menuItem(
+                      context,
+                      Icons.history,
+                      'Riwayat',
+                      '/riwayat',
+                      Colors.purple,
+                    ),
+                    _menuItem(
+                      context,
+                      Icons.bar_chart,
+                      'Laporan',
+                      '/laporan',
+                      Colors.indigo,
+                    ),
+                  ],
+                ),
+              ],
             ),
-            // GridView untuk menu
-            Expanded(
-              child: GridView.count(
-                crossAxisCount: 2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                children: [
-                  _menuItem(
-                    context,
-                    Icons.add_box,
-                    'Tambah Barang',
-                    '/tambah-barang',
-                  ),
-                  _menuItem(
-                    context,
-                    Icons.list,
-                    'Daftar Barang',
-                    '/daftar-barang',
-                  ),
-                  _menuItem(context, Icons.history, 'Riwayat', '/riwayat'),
-                  _menuItem(context, Icons.bar_chart, 'Laporan', '/laporan'),
-                ],
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -89,36 +114,46 @@ class HomeScreen extends StatelessWidget {
     IconData icon,
     String label,
     String route,
+    Color accentColor,
   ) {
     return InkWell(
+      borderRadius: BorderRadius.circular(18),
       onTap: () => Navigator.pushNamed(context, route),
-      // Menggunakan dekorasi yang sama dengan kontainer di RegisterScreen
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(18),
-          boxShadow: const [
+          boxShadow: [
             BoxShadow(
-              color: Colors.black12,
+              color: accentColor.withOpacity(0.12),
               blurRadius: 12,
-              offset: Offset(0, 6),
+              offset: const Offset(0, 6),
             ),
           ],
+          border: Border.all(color: accentColor.withOpacity(0.15), width: 2),
         ),
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Mengubah warna ikon agar sesuai
-              Icon(icon, size: 48, color: Colors.blue.shade700),
-              const SizedBox(height: 12),
+              Container(
+                decoration: BoxDecoration(
+                  color: accentColor.withOpacity(0.12),
+                  shape: BoxShape.circle,
+                ),
+                padding: const EdgeInsets.all(16),
+                child: Icon(icon, size: 38, color: accentColor),
+              ),
+              const SizedBox(height: 14),
               Text(
                 label,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: Colors.black87,
+                  color: accentColor,
+                  letterSpacing: 0.5,
                 ),
               ),
             ],
