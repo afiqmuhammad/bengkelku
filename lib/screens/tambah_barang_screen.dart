@@ -1,12 +1,14 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, avoid_print
 
 import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
+/// Halaman untuk menambahkan barang baru sekaligus mencatat transaksi "masuk".
 class TambahBarangScreen extends StatefulWidget {
   const TambahBarangScreen({super.key});
 
@@ -15,6 +17,8 @@ class TambahBarangScreen extends StatefulWidget {
 }
 
 class _TambahBarangScreenState extends State<TambahBarangScreen> {
+  // ──────────────────────────────────────────────────────────────────────────
+  // Controller & util
   final _formKey = GlobalKey<FormState>();
   final _nama = TextEditingController();
   final _kode = TextEditingController();
@@ -22,13 +26,15 @@ class _TambahBarangScreenState extends State<TambahBarangScreen> {
   final _stok = TextEditingController();
   final _harga = TextEditingController();
 
-  XFile? _webImage; // untuk web
-  File? _selectedImage; // untuk mobile
+  XFile? _webImage; // image untuk web
+  File? _selectedImage; // image untuk mobile
   bool _loading = false;
 
   final picker = ImagePicker();
   final uuid = const Uuid();
 
+  // ──────────────────────────────────────────────────────────────────────────
+  // Gambar
   Future<void> _pickImage() async {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
@@ -72,69 +78,95 @@ class _TambahBarangScreenState extends State<TambahBarangScreen> {
     }
   }
 
+  // ──────────────────────────────────────────────────────────────────────────
+  // Submit form
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _loading = true);
 
+    final supabase = Supabase.instance.client;
     try {
-      // Cek kode_barang sudah ada atau belum
+      // 1️⃣ Cek kode barang duplikat
       final existing =
-          await Supabase.instance.client
+          await supabase
               .from('barang')
               .select('id')
               .eq('kode_barang', _kode.text.trim())
               .maybeSingle();
-
       if (existing != null) {
         throw Exception(
-          'Kode Barang sudah digunakan, silakan gunakan kode lain.',
+          'Kode Barang sudah digunakan, silakan pilih kode lain.',
         );
       }
 
+      // 2️⃣ Upload gambar (jika ada)
       String? imageUrl;
-      if ((kIsWeb && _webImage != null) ||
-          (!kIsWeb && _selectedImage != null)) {
+      final hasImage =
+          (kIsWeb && _webImage != null) || (!kIsWeb && _selectedImage != null);
+      if (hasImage) {
         imageUrl = await _uploadImage();
-        if (imageUrl == null) {
-          throw Exception('Gagal upload gambar');
-        }
+        if (imageUrl == null) throw Exception('Gagal upload gambar');
       }
 
-      await Supabase.instance.client.from('barang').insert({
-        'user_id': Supabase.instance.client.auth.currentUser!.id,
-        'nama_barang': _nama.text.trim(),
-        'kode_barang': _kode.text.trim(),
-        'jenis_barang': _jenis.text.trim(),
-        'jumlah_stok': int.parse(_stok.text.trim()),
-        'harga': double.parse(_harga.text.trim()),
-        'gambar_url': imageUrl,
+      // 3️⃣ Insert ke tabel barang & langsung ambil hasil barunya
+      final newBarang =
+          await supabase
+              .from('barang')
+              .insert({
+                'user_id': supabase.auth.currentUser!.id,
+                'nama_barang': _nama.text.trim(),
+                'kode_barang': _kode.text.trim(),
+                'jenis_barang': _jenis.text.trim(),
+                'jumlah_stok': int.parse(_stok.text.trim()),
+                'harga': double.parse(_harga.text.trim()),
+                'gambar_url': imageUrl,
+              })
+              .select('id, jumlah_stok, harga')
+              .single();
+
+      // 4️⃣ Catat transaksi "masuk"
+      await supabase.from('transaksi').insert({
+        'user_id': supabase.auth.currentUser!.id,
+        'barang_id': newBarang['id'],
+        'tipe': 'masuk',
+        'jumlah': newBarang['jumlah_stok'],
+        'total': newBarang['jumlah_stok'] * newBarang['harga'],
       });
 
+      // ────────────────────
       setState(() => _loading = false);
-      Navigator.pop(context);
+      Navigator.pop(
+        context,
+        true,
+      ); // true → agar halaman sebelumnya bisa refresh
     } catch (e) {
       setState(() => _loading = false);
-      showDialog(
-        context: context,
-        builder:
-            (context) => AlertDialog(
-              title: const Text('Error'),
-              content: Text(e.toString()),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('OK'),
-                ),
-              ],
-            ),
-      );
+      _showError(e.toString());
     }
   }
 
+  void _showError(String message) {
+    showDialog(
+      context: context,
+      builder:
+          (_) => AlertDialog(
+            title: const Text('Error'),
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+    );
+  }
+
+  // ──────────────────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F6FA), // sama seperti login
+      backgroundColor: const Color(0xFFF5F6FA),
       appBar: AppBar(
         title: const Text('Tambah Barang'),
         backgroundColor: Colors.blue.shade700,
@@ -155,7 +187,7 @@ class _TambahBarangScreenState extends State<TambahBarangScreen> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(18),
-                boxShadow: [
+                boxShadow: const [
                   BoxShadow(
                     color: Colors.black12,
                     blurRadius: 12,
@@ -169,14 +201,13 @@ class _TambahBarangScreenState extends State<TambahBarangScreen> {
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   children: [
-                    // Tambahkan logo/icon di atas form
                     Center(
                       child: CircleAvatar(
                         radius: 40,
                         backgroundColor: Colors.blue.shade100,
                         child: ClipOval(
                           child: Image.asset(
-                            'assets/logo.png', // Ganti dengan path gambar kamu
+                            'assets/logo.png',
                             width: 56,
                             height: 56,
                             fit: BoxFit.cover,
@@ -185,83 +216,36 @@ class _TambahBarangScreenState extends State<TambahBarangScreen> {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    TextFormField(
-                      controller: _nama,
-                      decoration: InputDecoration(
-                        labelText: 'Nama Barang',
-                        prefixIcon: Icon(
-                          Icons.inventory_2_outlined,
-                          color: Colors.blue.shade700,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      validator: (v) => v!.isEmpty ? 'Harus diisi' : null,
+                    _buildTextField(
+                      _nama,
+                      'Nama Barang',
+                      Icons.inventory_2_outlined,
                     ),
                     const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _kode,
-                      decoration: InputDecoration(
-                        labelText: 'Kode Barang',
-                        prefixIcon: Icon(
-                          Icons.qr_code,
-                          color: Colors.blue.shade700,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      validator: (v) => v!.isEmpty ? 'Harus diisi' : null,
+                    _buildTextField(_kode, 'Kode Barang', Icons.qr_code),
+                    const SizedBox(height: 16),
+                    _buildTextField(
+                      _jenis,
+                      'Jenis Barang',
+                      Icons.category_outlined,
                     ),
                     const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _jenis,
-                      decoration: InputDecoration(
-                        labelText: 'Jenis Barang',
-                        prefixIcon: Icon(
-                          Icons.category_outlined,
-                          color: Colors.blue.shade700,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      validator: (v) => v!.isEmpty ? 'Harus diisi' : null,
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _stok,
+                    _buildTextField(
+                      _stok,
+                      'Jumlah Stok',
+                      Icons.numbers,
                       keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        labelText: 'Jumlah Stok',
-                        prefixIcon: Icon(
-                          Icons.numbers,
-                          color: Colors.blue.shade700,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      validator: (v) => v!.isEmpty ? 'Harus diisi' : null,
                     ),
                     const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _harga,
+                    _buildTextField(
+                      _harga,
+                      'Harga',
+                      Icons.price_change,
                       keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        labelText: 'Harga',
-                        prefixIcon: Icon(
-                          Icons.price_change,
-                          color: Colors.blue.shade700,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      validator: (v) => v!.isEmpty ? 'Harus diisi' : null,
                     ),
                     const SizedBox(height: 18),
+
+                    // Preview / info gambar
                     if (!kIsWeb && _selectedImage == null ||
                         kIsWeb && _webImage == null)
                       const Text('Belum ada gambar')
@@ -279,7 +263,7 @@ class _TambahBarangScreenState extends State<TambahBarangScreen> {
                       ),
                       onPressed: _pickImage,
                       icon: const Icon(Icons.image),
-                      label: const Text("Pilih Gambar"),
+                      label: const Text('Pilih Gambar'),
                     ),
                     const SizedBox(height: 24),
                     SizedBox(
@@ -291,7 +275,6 @@ class _TambahBarangScreenState extends State<TambahBarangScreen> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          elevation: 2,
                         ),
                         onPressed: _loading ? null : _submit,
                         child: Text(
@@ -310,6 +293,25 @@ class _TambahBarangScreenState extends State<TambahBarangScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  // ──────────────────────────────────────────────────────────────────────────
+  Widget _buildTextField(
+    TextEditingController controller,
+    String label,
+    IconData icon, {
+    TextInputType keyboardType = TextInputType.text,
+  }) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: keyboardType,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon, color: Colors.blue.shade700),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      validator: (v) => v!.isEmpty ? 'Harus diisi' : null,
     );
   }
 }
