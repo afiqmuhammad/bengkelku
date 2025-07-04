@@ -7,6 +7,7 @@ import 'screens/home_screen.dart';
 import 'screens/daftar_barang_screen.dart';
 import 'screens/riwayat_screen.dart';
 import 'screens/splash/splash_screen.dart';
+import 'screens/laporan_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,6 +32,7 @@ class MyApp extends StatelessWidget {
         '/home': (context) => const HomeScreen(),
         '/daftar-barang': (context) => const DaftarBarangScreen(),
         '/riwayat': (context) => const RiwayatScreen(),
+        '/laporan': (context) => const LaporanScreen(),
       },
     );
   }
