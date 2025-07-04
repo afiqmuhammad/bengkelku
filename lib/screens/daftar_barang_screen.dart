@@ -102,12 +102,12 @@ class _DaftarBarangScreenState extends State<DaftarBarangScreen> {
           .eq('id', item['id']);
 
       // Simpan riwayat pengeluaran
-      await Supabase.instance.client.from('riwayat').insert({
+      await Supabase.instance.client.from('transaksi').insert({
+        'user_id': Supabase.instance.client.auth.currentUser!.id,
         'barang_id': item['id'],
         'tipe': 'keluar',
         'jumlah': jumlahKeluar,
-        'harga': item['harga'],
-        'user_id': Supabase.instance.client.auth.currentUser!.id,
+        'total': jumlahKeluar * item['harga'],
       });
 
       _loadBarang();
