@@ -110,6 +110,17 @@ class _TambahBarangScreenState extends State<TambahBarangScreen> {
         'gambar_url': imageUrl,
       });
 
+      // Tambahkan ke riwayat_transaksi sebagai barang masuk
+      await Supabase.instance.client.from('riwayat_transaksi').insert({
+        'user_id': Supabase.instance.client.auth.currentUser!.id,
+        'nama_barang': _nama.text.trim(),
+        'kode_barang': _kode.text.trim(),
+        'jumlah': int.parse(_stok.text.trim()),
+        'total': double.parse(_harga.text.trim()) * int.parse(_stok.text.trim()),
+        'tanggal': DateTime.now().toIso8601String(),
+        'tipe': 'masuk',
+      });
+
       setState(() => _loading = false);
       Navigator.pop(context);
     } catch (e) {
