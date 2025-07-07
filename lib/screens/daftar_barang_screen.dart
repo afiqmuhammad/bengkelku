@@ -295,9 +295,12 @@ class _DaftarBarangScreenState extends State<DaftarBarangScreen> {
 =======
       await Supabase.instance.client.from('riwayat').insert({
 >>>>>>> origin/andri_fitur-edit
+<<<<<<< HEAD
 =======
       await Supabase.instance.client.from('riwayat').insert({
 >>>>>>> origin/Zulfa_Menyesuaikan
+=======
+>>>>>>> 42f7a105dc18dba8da40f3891c2111fbc8dfe1d7
         'barang_id': item['id'],
         'tipe': 'keluar',
         'jumlah': jumlahKeluar,
