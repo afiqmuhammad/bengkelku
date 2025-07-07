@@ -5,9 +5,12 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+<<<<<<< HEAD
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+=======
+>>>>>>> origin/andri_fitur-hapus-barang
 
 class DaftarBarangScreen extends StatefulWidget {
   const DaftarBarangScreen({super.key});
@@ -32,7 +35,10 @@ class _DaftarBarangScreenState extends State<DaftarBarangScreen> {
 
     final userId = Supabase.instance.client.auth.currentUser!.id;
     final data = await Supabase.instance.client
+<<<<<<< HEAD
     final data = await Supabase.instance.client
+=======
+>>>>>>> origin/andri_fitur-hapus-barang
         .from('barang')
         .select()
         .eq('user_id', userId)
@@ -45,6 +51,7 @@ class _DaftarBarangScreenState extends State<DaftarBarangScreen> {
     });
   }
 
+  /* --------------------- EDIT BARANG --------------------- */
   void _editBarang(Map item) {
     _showEditBarangDialog(item);
   }
@@ -63,6 +70,7 @@ class _DaftarBarangScreenState extends State<DaftarBarangScreen> {
     XFile? _pickedXFile; // Web
     File? _pickedImage; // Mobile
 
+<<<<<<< HEAD
     _showEditBarangDialog(item);
   }
 
@@ -80,6 +88,8 @@ class _DaftarBarangScreenState extends State<DaftarBarangScreen> {
     XFile? _pickedXFile; // Web
     File? _pickedImage; // Mobile
 
+=======
+>>>>>>> origin/andri_fitur-hapus-barang
     showDialog(
       context: context,
       builder: (_) {
@@ -260,6 +270,7 @@ class _DaftarBarangScreenState extends State<DaftarBarangScreen> {
               ],
             );
           },
+<<<<<<< HEAD
         return StatefulBuilder(
           builder: (context, setState) {
             Future<void> _pickImage() async {
@@ -437,11 +448,14 @@ class _DaftarBarangScreenState extends State<DaftarBarangScreen> {
               ],
             );
           },
+=======
+>>>>>>> origin/andri_fitur-hapus-barang
         );
       },
     );
   }
 
+  /* --------------------- KELUARKAN BARANG --------------------- */
   void _keluarkanBarang(Map item) async {
     final jumlahKeluar = await showDialog<int>(
       context: context,
@@ -486,6 +500,7 @@ class _DaftarBarangScreenState extends State<DaftarBarangScreen> {
           .eq('id', item['id']);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
       // Simpan riwayat pengeluaran
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -503,19 +518,79 @@ class _DaftarBarangScreenState extends State<DaftarBarangScreen> {
 >>>>>>> origin/Zulfa_Menyesuaikan
 =======
 >>>>>>> 42f7a105dc18dba8da40f3891c2111fbc8dfe1d7
+=======
+      await Supabase.instance.client.from('riwayat').insert({
+>>>>>>> origin/andri_fitur-hapus-barang
         'barang_id': item['id'],
         'tipe': 'keluar',
         'jumlah': jumlahKeluar,
-        'total': jumlahKeluar * item['harga'],
+        'harga': item['harga'],
+        'user_id': Supabase.instance.client.auth.currentUser!.id,
       });
 
       _loadBarang();
     }
   }
 
+  /* --------------------- HAPUS BARANG --------------------- */
+  void _hapusBarang(Map item) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder:
+          (_) => AlertDialog(
+            title: const Text("Hapus Barang"),
+            content: Text(
+              "Apakah Anda yakin ingin menghapus '${item['nama_barang']}'?",
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text("Batal"),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context, true),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                child: const Text("Hapus"),
+              ),
+            ],
+          ),
+    );
+
+    if (confirm != true) return;
+
+    try {
+      // Hapus gambar di storage jika ada
+      if (item['gambar_url'] != null &&
+          item['gambar_url'].toString().isNotEmpty) {
+        final url = item['gambar_url'] as String;
+        final fileName = url.split('/').last;
+        await Supabase.instance.client.storage.from('gambar').remove([
+          fileName,
+        ]);
+      }
+
+      // Hapus data dari tabel barang
+      await Supabase.instance.client
+          .from('barang')
+          .delete()
+          .eq('id', item['id']);
+
+      _loadBarang();
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Barang berhasil dihapus")));
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Gagal menghapus barang")));
+    }
+  }
+
+  /* --------------------- UI --------------------- */
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+<<<<<<< HEAD
       backgroundColor: const Color(0xFFF5F6FA),
       appBar: AppBar(
         title: const Text("Daftar Barang"),
@@ -536,8 +611,32 @@ class _DaftarBarangScreenState extends State<DaftarBarangScreen> {
                 ),
                 filled: true,
                 fillColor: Colors.grey[100],
+=======
+      appBar: AppBar(title: const Text("Daftar Barang")),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: "Cari barang...",
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.clear),
+                  onPressed: () {
+                    _searchController.clear();
+                    _loadBarang();
+                  },
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+>>>>>>> origin/andri_fitur-hapus-barang
               ),
+              onChanged: (val) => _loadBarang(val),
             ),
+<<<<<<< HEAD
             const SizedBox(height: 24),
             _loading
                 ? const Center(child: CircularProgressIndicator())
@@ -664,6 +763,58 @@ class _DaftarBarangScreenState extends State<DaftarBarangScreen> {
                 ),
           ],
         ),
+=======
+          ),
+          Expanded(
+            child:
+                _loading
+                    ? const Center(child: CircularProgressIndicator())
+                    : ListView.builder(
+                      itemCount: _barangList.length,
+                      itemBuilder: (context, index) {
+                        final item = _barangList[index];
+                        return ListTile(
+                          leading:
+                              item['gambar_url'] != null
+                                  ? Image.network(
+                                    item['gambar_url'],
+                                    width: 50,
+                                    height: 50,
+                                    fit: BoxFit.cover,
+                                  )
+                                  : const Icon(Icons.inventory),
+                          title: Text(item['nama_barang']),
+                          subtitle: Text(
+                            "Stok: ${item['jumlah_stok']} - Harga: Rp${item['harga']}",
+                          ),
+                          trailing: PopupMenuButton<String>(
+                            onSelected: (value) {
+                              if (value == 'edit') _editBarang(item);
+                              if (value == 'keluar') _keluarkanBarang(item);
+                              if (value == 'hapus') _hapusBarang(item);
+                            },
+                            itemBuilder:
+                                (context) => [
+                                  const PopupMenuItem(
+                                    value: 'edit',
+                                    child: Text("Edit"),
+                                  ),
+                                  const PopupMenuItem(
+                                    value: 'keluar',
+                                    child: Text("Keluarkan"),
+                                  ),
+                                  const PopupMenuItem(
+                                    value: 'hapus',
+                                    child: Text("Hapus"),
+                                  ),
+                                ],
+                          ),
+                        );
+                      },
+                    ),
+          ),
+        ],
+>>>>>>> origin/andri_fitur-hapus-barang
       ),
     );
   }
