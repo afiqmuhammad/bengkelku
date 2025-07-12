@@ -54,10 +54,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 CircleAvatar(
                   radius: 48,
                   backgroundColor: Colors.blue.shade100,
-                  child: Icon(
-                    Icons.person_add_alt_1,
-                    size: 48,
-                    color: Colors.blue.shade700,
+                  child: ClipOval(
+                    child: Image.asset(
+                      'assets/logo.png',
+                      width: 60,
+                      height: 60,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 24),

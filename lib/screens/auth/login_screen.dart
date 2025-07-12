@@ -55,10 +55,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 CircleAvatar(
                   radius: 48,
                   backgroundColor: Colors.blue.shade100,
-                  child: Icon(
-                    Icons.car_repair,
-                    size: 48,
-                    color: Colors.blue.shade700,
+                  child: ClipOval(
+                    child: Image.asset(
+                      'assets/logo.png',
+                      width: 60,
+                      height: 60,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 24),
