@@ -6,37 +6,46 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Menggunakan warna latar belakang yang sama dengan RegisterScreen
-      backgroundColor: const Color(0xFFF5F6FA),
-      appBar: AppBar(
-        // Menyesuaikan AppBar agar lebih cocok dengan tema
-        backgroundColor: Colors.blue.shade700,
-        elevation: 4,
-        title: const Text(
-          'Bengkelku',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () {
-              // Arahkan ke halaman login saat logout
-              Navigator.pushReplacementNamed(context, '/login');
-            },
-          ),
-        ],
-      ),
-      body: Center(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
+      backgroundColor: Colors.blue.shade400,
+      body: Column(
+        children: [
+          // 🔷 Header dengan gradasi biru dan logo
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.only(
+              top: 5,
+              left: 10,
+              right: 10,
+              bottom: 20,
+            ),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.blue.shade600, Colors.blue.shade900],
+              ),
+              borderRadius: const BorderRadius.vertical(
+                bottom: Radius.circular(24),
+              ),
+            ),
             child: Column(
-              mainAxisSize: MainAxisSize.min,
               children: [
-                // Logo bulat di atas
+                // 🔙 Tombol logout di kanan atas
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
+                      padding: const EdgeInsets.all(5),
+                      icon: const Icon(Icons.logout, color: Colors.white),
+                      onPressed: () {
+                        Navigator.pushReplacementNamed(context, '/login');
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                // 🖼️ Logo tetap, tidak diganti ikon
                 CircleAvatar(
-                  radius: 44,
-                  backgroundColor: Colors.blue.shade100,
+                  radius: 38,
+                  backgroundColor: Colors.white,
                   child: ClipOval(
                     child: Image.asset(
                       'assets/logo.png',
@@ -46,69 +55,92 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 24),
-                Text(
-                  "Menu Utama",
+                const SizedBox(height: 12),
+                const Text(
+                  'Bengkelku',
                   style: TextStyle(
-                    fontSize: 28,
+                    color: Colors.white,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: Colors.blue.shade700,
                     letterSpacing: 1.2,
                   ),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  "Pilih salah satu menu di bawah ini",
-                  style: TextStyle(fontSize: 16, color: Colors.black54),
-                ),
-                const SizedBox(height: 32),
-                GridView.count(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 18,
-                  mainAxisSpacing: 18,
-                  childAspectRatio: 1,
-                  children: [
-                    _menuItem(
-                      context,
-                      Icons.add_box,
-                      'Tambah Barang',
-                      '/tambah-barang',
-                      Colors.teal,
-                    ),
-                    _menuItem(
-                      context,
-                      Icons.list,
-                      'Daftar Barang',
-                      '/daftar-barang',
-                      Colors.orange,
-                    ),
-                    _menuItem(
-                      context,
-                      Icons.history,
-                      'Riwayat',
-                      '/riwayat',
-                      Colors.purple,
-                    ),
-                    _menuItem(
-                      context,
-                      Icons.bar_chart,
-                      'Laporan',
-                      '/laporan',
-                      Colors.indigo,
-                    ),
-                  ],
                 ),
               ],
             ),
           ),
-        ),
+
+          // ✨ Konten utama
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+              child: Column(
+                children: [
+                  Text(
+                    "Menu Utama",
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: const Color.fromARGB(255, 255, 255, 255),
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    "Pilih salah satu menu di bawah ini",
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Color.fromARGB(255, 0, 0, 0),
+                    ),
+                  ),
+                  const SizedBox(height: 28),
+                  GridView.count(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 18,
+                    mainAxisSpacing: 18,
+                    childAspectRatio: 1,
+                    children: [
+                      _menuItem(
+                        context,
+                        Icons.add_box,
+                        'Tambah Barang',
+                        '/tambah-barang',
+                        Colors.blue.shade700,
+                      ),
+                      _menuItem(
+                        context,
+                        Icons.list,
+                        'Daftar Barang',
+                        '/daftar-barang',
+                        Colors.blue.shade700,
+                      ),
+                      _menuItem(
+                        context,
+                        Icons.history,
+                        'Riwayat',
+                        '/riwayat',
+                        Colors.blue.shade700,
+                      ),
+                      _menuItem(
+                        context,
+                        Icons.bar_chart,
+                        'Laporan',
+                        '/laporan',
+                        Colors.blue.shade700,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  // Widget untuk setiap item menu dengan gaya yang diperbarui
+  // 🔘 Widget menu bergaya modern
   Widget _menuItem(
     BuildContext context,
     IconData icon,

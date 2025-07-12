@@ -1,10 +1,10 @@
-// ignore_for_file: no_leading_underscores_for_local_identifiers, use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously
 
-import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class DaftarBarangScreen extends StatefulWidget {
   const DaftarBarangScreen({super.key});
@@ -24,6 +24,31 @@ class _DaftarBarangScreenState extends State<DaftarBarangScreen> {
     _loadBarang();
   }
 
+  void showCustomSnackbar(
+    BuildContext context,
+    String message, {
+    Color backgroundColor = Colors.blue,
+    IconData icon = Icons.info,
+  }) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(icon, color: Colors.white),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(message, style: const TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
+        backgroundColor: backgroundColor,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 3),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
+  }
+
   Future<void> _loadBarang([String keyword = '']) async {
     setState(() => _loading = true);
 
@@ -41,10 +66,7 @@ class _DaftarBarangScreenState extends State<DaftarBarangScreen> {
     });
   }
 
-  /* --------------------- EDIT BARANG --------------------- */
-  void _editBarang(Map item) {
-    _showEditBarangDialog(item);
-  }
+  void _editBarang(Map item) => _showEditBarangDialog(item);
 
   void _showEditBarangDialog(Map item) {
     final _namaController = TextEditingController(text: item['nama_barang']);
@@ -57,8 +79,8 @@ class _DaftarBarangScreenState extends State<DaftarBarangScreen> {
     );
 
     String? gambarUrl = item['gambar_url'];
-    XFile? _pickedXFile; // Web
-    File? _pickedImage; // Mobile
+    XFile? _pickedXFile;
+    File? _pickedImage;
 
     showDialog(
       context: context,
@@ -91,54 +113,41 @@ class _DaftarBarangScreenState extends State<DaftarBarangScreen> {
                   children: [
                     GestureDetector(
                       onTap: _pickImage,
-                      child:
-                          kIsWeb
-                              ? (_pickedXFile != null
-                                  ? Image.network(
-                                    _pickedXFile!.path,
-                                    width: 80,
-                                    height: 80,
-                                    fit: BoxFit.cover,
-                                  )
-                                  : gambarUrl != null
-                                  ? Image.network(
-                                    gambarUrl,
-                                    width: 80,
-                                    height: 80,
-                                    fit: BoxFit.cover,
-                                  )
-                                  : Container(
-                                    width: 80,
-                                    height: 80,
-                                    color: Colors.grey[200],
-                                    child: const Icon(
-                                      Icons.camera_alt,
-                                      size: 40,
-                                    ),
-                                  ))
-                              : (_pickedImage != null
-                                  ? Image.file(
-                                    _pickedImage!,
-                                    width: 80,
-                                    height: 80,
-                                    fit: BoxFit.cover,
-                                  )
-                                  : gambarUrl != null
-                                  ? Image.network(
-                                    gambarUrl,
-                                    width: 80,
-                                    height: 80,
-                                    fit: BoxFit.cover,
-                                  )
-                                  : Container(
-                                    width: 80,
-                                    height: 80,
-                                    color: Colors.grey[200],
-                                    child: const Icon(
-                                      Icons.camera_alt,
-                                      size: 40,
-                                    ),
-                                  )),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child:
+                            kIsWeb
+                                ? (_pickedXFile != null
+                                    ? Image.network(
+                                      _pickedXFile!.path,
+                                      width: 80,
+                                      height: 80,
+                                      fit: BoxFit.cover,
+                                    )
+                                    : gambarUrl != null
+                                    ? Image.network(
+                                      gambarUrl!,
+                                      width: 80,
+                                      height: 80,
+                                      fit: BoxFit.cover,
+                                    )
+                                    : _emptyImage())
+                                : (_pickedImage != null
+                                    ? Image.file(
+                                      _pickedImage!,
+                                      width: 80,
+                                      height: 80,
+                                      fit: BoxFit.cover,
+                                    )
+                                    : gambarUrl != null
+                                    ? Image.network(
+                                      gambarUrl!,
+                                      width: 80,
+                                      height: 80,
+                                      fit: BoxFit.cover,
+                                    )
+                                    : _emptyImage()),
+                      ),
                     ),
                     const SizedBox(height: 12),
                     TextField(
@@ -211,9 +220,12 @@ class _DaftarBarangScreenState extends State<DaftarBarangScreen> {
                             .from('gambar')
                             .getPublicUrl(fileName);
                       }
-                    } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Gagal upload gambar")),
+                    } catch (_) {
+                      showCustomSnackbar(
+                        context,
+                        "Gagal upload gambar",
+                        backgroundColor: Colors.red,
+                        icon: Icons.error,
                       );
                       return;
                     }
@@ -231,8 +243,11 @@ class _DaftarBarangScreenState extends State<DaftarBarangScreen> {
 
                     Navigator.pop(context);
                     _loadBarang();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Barang berhasil diupdate")),
+                    showCustomSnackbar(
+                      context,
+                      "Barang berhasil diperbarui",
+                      backgroundColor: Colors.green,
+                      icon: Icons.check_circle,
                     );
                   },
                   child: const Text("Simpan"),
@@ -245,7 +260,15 @@ class _DaftarBarangScreenState extends State<DaftarBarangScreen> {
     );
   }
 
-  /* --------------------- KELUARKAN BARANG --------------------- */
+  Widget _emptyImage() {
+    return Container(
+      width: 80,
+      height: 80,
+      color: Colors.grey[200],
+      child: const Icon(Icons.camera_alt),
+    );
+  }
+
   void _keluarkanBarang(Map item) async {
     final jumlahKeluar = await showDialog<int>(
       context: context,
@@ -256,7 +279,7 @@ class _DaftarBarangScreenState extends State<DaftarBarangScreen> {
           content: TextField(
             controller: _jumlah,
             keyboardType: TextInputType.number,
-            decoration: const InputDecoration(labelText: "Jumlah yang keluar"),
+            decoration: const InputDecoration(labelText: "Jumlah keluar"),
           ),
           actions: [
             TextButton(
@@ -278,30 +301,40 @@ class _DaftarBarangScreenState extends State<DaftarBarangScreen> {
     if (jumlahKeluar != null && jumlahKeluar > 0) {
       final stokBaru = item['jumlah_stok'] - jumlahKeluar;
       if (stokBaru < 0) {
-        ScaffoldMessenger.of(
+        showCustomSnackbar(
           context,
-        ).showSnackBar(const SnackBar(content: Text("Stok tidak mencukupi")));
+          "Stok tidak mencukupi",
+          backgroundColor: Colors.red,
+          icon: Icons.warning,
+        );
         return;
       }
 
-      await Supabase.instance.client
+      final supabase = Supabase.instance.client;
+      final userId = supabase.auth.currentUser!.id;
+
+      await supabase
           .from('barang')
           .update({'jumlah_stok': stokBaru})
           .eq('id', item['id']);
-
-      await Supabase.instance.client.from('riwayat').insert({
+      await supabase.from('transaksi').insert({
         'barang_id': item['id'],
         'tipe': 'keluar',
         'jumlah': jumlahKeluar,
-        'harga': item['harga'],
-        'user_id': Supabase.instance.client.auth.currentUser!.id,
+        'total': jumlahKeluar * item['harga'],
+        'user_id': userId,
       });
 
       _loadBarang();
+      showCustomSnackbar(
+        context,
+        "Barang berhasil dikeluarkan",
+        backgroundColor: Colors.orange,
+        icon: Icons.remove_shopping_cart,
+      );
     }
   }
 
-  /* --------------------- HAPUS BARANG --------------------- */
   void _hapusBarang(Map item) async {
     final confirm = await showDialog<bool>(
       context: context,
@@ -309,7 +342,7 @@ class _DaftarBarangScreenState extends State<DaftarBarangScreen> {
           (_) => AlertDialog(
             title: const Text("Hapus Barang"),
             content: Text(
-              "Apakah Anda yakin ingin menghapus '${item['nama_barang']}'?",
+              "Yakin ingin menghapus '${item['nama_barang']}' dari daftar?",
             ),
             actions: [
               TextButton(
@@ -317,8 +350,8 @@ class _DaftarBarangScreenState extends State<DaftarBarangScreen> {
                 child: const Text("Batal"),
               ),
               ElevatedButton(
-                onPressed: () => Navigator.pop(context, true),
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                onPressed: () => Navigator.pop(context, true),
                 child: const Text("Hapus"),
               ),
             ],
@@ -328,61 +361,108 @@ class _DaftarBarangScreenState extends State<DaftarBarangScreen> {
     if (confirm != true) return;
 
     try {
-      // Hapus gambar di storage jika ada
       if (item['gambar_url'] != null &&
           item['gambar_url'].toString().isNotEmpty) {
-        final url = item['gambar_url'] as String;
-        final fileName = url.split('/').last;
+        final fileName = item['gambar_url'].split('/').last;
         await Supabase.instance.client.storage.from('gambar').remove([
           fileName,
         ]);
       }
 
-      // Hapus data dari tabel barang
       await Supabase.instance.client
           .from('barang')
           .delete()
           .eq('id', item['id']);
-
       _loadBarang();
-      ScaffoldMessenger.of(
+      showCustomSnackbar(
         context,
-      ).showSnackBar(const SnackBar(content: Text("Barang berhasil dihapus")));
-    } catch (e) {
-      ScaffoldMessenger.of(
+        "Barang berhasil dihapus",
+        backgroundColor: Colors.red.shade400,
+        icon: Icons.delete,
+      );
+    } catch (_) {
+      showCustomSnackbar(
         context,
-      ).showSnackBar(const SnackBar(content: Text("Gagal menghapus barang")));
+        "Gagal menghapus barang",
+        backgroundColor: Colors.red,
+        icon: Icons.error_outline,
+      );
     }
   }
 
-  /* --------------------- UI --------------------- */
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Daftar Barang")),
+      backgroundColor: const Color(0xFF2D9CDB), // biru gradasi
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: "Cari barang...",
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.clear),
-                  onPressed: () {
-                    _searchController.clear();
-                    _loadBarang();
-                  },
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
+          Container(
+            padding: const EdgeInsets.only(top: 5, bottom: 20),
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF56CCF2), Color(0xFF2F80ED)],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
               ),
-              onChanged: (val) => _loadBarang(val),
+              borderRadius: BorderRadius.vertical(
+                bottom: Radius.circular(30), // 👈 agar bawah melengkung
+              ),
+            ),
+
+            child: Column(
+              children: [
+                // Tombol kembali
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: IconButton(
+                    icon: const Icon(Icons.arrow_back, color: Colors.white),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ),
+                const Icon(
+                  Icons.inventory_2_outlined,
+                  size: 64,
+                  color: Colors.white,
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  "Daftar Barang",
+                  style: TextStyle(
+                    fontSize: 24,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: (val) => _loadBarang(val),
+                    decoration: InputDecoration(
+                      hintText: "Cari nama barang...",
+                      filled: true,
+                      fillColor: Colors.white,
+                      prefixIcon: const Icon(Icons.search),
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          _searchController.clear();
+                          _loadBarang();
+                        },
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
+
           Expanded(
             child:
                 _loading
@@ -391,41 +471,92 @@ class _DaftarBarangScreenState extends State<DaftarBarangScreen> {
                       itemCount: _barangList.length,
                       itemBuilder: (context, index) {
                         final item = _barangList[index];
-                        return ListTile(
-                          leading:
-                              item['gambar_url'] != null
-                                  ? Image.network(
-                                    item['gambar_url'],
-                                    width: 50,
-                                    height: 50,
-                                    fit: BoxFit.cover,
-                                  )
-                                  : const Icon(Icons.inventory),
-                          title: Text(item['nama_barang']),
-                          subtitle: Text(
-                            "Stok: ${item['jumlah_stok']} - Harga: Rp${item['harga']}",
+                        return Card(
+                          margin: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
                           ),
-                          trailing: PopupMenuButton<String>(
-                            onSelected: (value) {
-                              if (value == 'edit') _editBarang(item);
-                              if (value == 'keluar') _keluarkanBarang(item);
-                              if (value == 'hapus') _hapusBarang(item);
-                            },
-                            itemBuilder:
-                                (context) => [
-                                  const PopupMenuItem(
-                                    value: 'edit',
-                                    child: Text("Edit"),
-                                  ),
-                                  const PopupMenuItem(
-                                    value: 'keluar',
-                                    child: Text("Keluarkan"),
-                                  ),
-                                  const PopupMenuItem(
-                                    value: 'hapus',
-                                    child: Text("Hapus"),
-                                  ),
-                                ],
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 3,
+                          child: ListTile(
+                            contentPadding: const EdgeInsets.all(12),
+                            leading: ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child:
+                                  item['gambar_url'] != null
+                                      ? Image.network(
+                                        item['gambar_url'],
+                                        width: 60,
+                                        height: 60,
+                                        fit: BoxFit.cover,
+                                      )
+                                      : Container(
+                                        width: 60,
+                                        height: 60,
+                                        color: Colors.grey[200],
+                                        child: const Icon(Icons.inventory),
+                                      ),
+                            ),
+                            title: Text(
+                              item['nama_barang'],
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text("Kode: ${item['kode_barang']}"),
+                                Text("Stok: ${item['jumlah_stok']}"),
+                                Text("Harga: Rp${item['harga']}"),
+                              ],
+                            ),
+                            trailing: PopupMenuButton<String>(
+                              onSelected: (value) {
+                                if (value == 'edit') _editBarang(item);
+                                if (value == 'keluar') _keluarkanBarang(item);
+                                if (value == 'hapus') _hapusBarang(item);
+                              },
+                              itemBuilder:
+                                  (context) => [
+                                    const PopupMenuItem(
+                                      value: 'edit',
+                                      child: Row(
+                                        children: [
+                                          Icon(Icons.edit, color: Colors.blue),
+                                          SizedBox(width: 8),
+                                          Text("Edit"),
+                                        ],
+                                      ),
+                                    ),
+                                    const PopupMenuItem(
+                                      value: 'keluar',
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            Icons.arrow_upward,
+                                            color: Colors.orange,
+                                          ),
+                                          SizedBox(width: 8),
+                                          Text("Keluarkan"),
+                                        ],
+                                      ),
+                                    ),
+                                    const PopupMenuItem(
+                                      value: 'hapus',
+                                      child: Row(
+                                        children: [
+                                          Icon(Icons.delete, color: Colors.red),
+                                          SizedBox(width: 8),
+                                          Text("Hapus"),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                            ),
                           ),
                         );
                       },

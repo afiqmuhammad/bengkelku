@@ -38,8 +38,9 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
         _selectedDate!.day,
       );
       final end = start.add(const Duration(days: 1));
-      query = query.gte('tanggal', start.toIso8601String());
-      query = query.lt('tanggal', end.toIso8601String());
+      query = query
+          .gte('tanggal', start.toIso8601String())
+          .lt('tanggal', end.toIso8601String());
     }
 
     final data = await query.order('tanggal', ascending: false);
@@ -76,74 +77,145 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
     });
   }
 
+  DropdownMenuItem<String> _buildDropdownItem(String label, IconData icon) {
+    return DropdownMenuItem<String>(
+      value: label,
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: Colors.blue.shade700),
+          const SizedBox(width: 8),
+          Text(label),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F6FA),
-      appBar: AppBar(
-        title: const Text('Riwayat Barang'),
-        backgroundColor: Colors.blue.shade700,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        titleTextStyle: const TextStyle(
-          color: Colors.white,
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
+      backgroundColor: const Color(0xFF2D9CDB),
       body: Column(
         children: [
-          // Filter Section
-          Padding(
-            padding: const EdgeInsets.all(16),
+          Container(
+            padding: const EdgeInsets.only(top: 5, bottom: 20),
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF56CCF2), Color(0xFF2F80ED)],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+              borderRadius: BorderRadius.vertical(
+                bottom: Radius.circular(30), // 👈 agar bawah melengkung
+              ),
+            ),
+
             child: Column(
               children: [
-                Row(
-                  children: [
-                    const Text(
-                      'Tipe: ',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    DropdownButton<String>(
-                      value: _selectedFilter,
-                      items:
-                          ['Semua', 'Masuk', 'Keluar']
-                              .map(
-                                (value) => DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: IconButton(
+                    icon: const Icon(Icons.arrow_back, color: Colors.white),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ),
+                const Icon(Icons.history, size: 64, color: Colors.white),
+                const SizedBox(height: 10),
+                const Text(
+                  "Riwayat Barang",
+                  style: TextStyle(
+                    fontSize: 24,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Wrap(
+                    runSpacing: 12,
+                    spacing: 12,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.filter_list, color: Colors.white),
+                          const SizedBox(width: 8),
+                          const Text(
+                            'Tipe:',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: DropdownButton<String>(
+                              value: _selectedFilter,
+                              underline: const SizedBox(),
+                              borderRadius: BorderRadius.circular(10),
+                              dropdownColor: Colors.white,
+                              items: [
+                                _buildDropdownItem('Semua', Icons.list_alt),
+                                _buildDropdownItem(
+                                  'Masuk',
+                                  Icons.arrow_downward,
                                 ),
-                              )
-                              .toList(),
-                      onChanged: _onFilterChanged,
-                    ),
-                    const Spacer(),
-                    ElevatedButton.icon(
-                      onPressed: _pickDate,
-                      icon: const Icon(Icons.date_range),
-                      label: Text(
-                        _selectedDate == null
-                            ? 'Pilih Tanggal'
-                            : DateFormat('dd MMM yyyy').format(_selectedDate!),
+                                _buildDropdownItem(
+                                  'Keluar',
+                                  Icons.arrow_upward,
+                                ),
+                              ],
+                              onChanged: _onFilterChanged,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    if (_selectedDate != null)
-                      IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: _clearDateFilter,
-                        tooltip: 'Hapus Filter Tanggal',
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          ElevatedButton.icon(
+                            onPressed: _pickDate,
+                            icon: const Icon(Icons.date_range),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: Colors.blue.shade700,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            label: Text(
+                              _selectedDate == null
+                                  ? 'Pilih Tanggal'
+                                  : DateFormat(
+                                    'dd MMM yyyy',
+                                  ).format(_selectedDate!),
+                            ),
+                          ),
+                          if (_selectedDate != null)
+                            IconButton(
+                              icon: const Icon(
+                                Icons.clear,
+                                color: Colors.white,
+                              ),
+                              onPressed: _clearDateFilter,
+                              tooltip: 'Hapus Filter Tanggal',
+                            ),
+                        ],
                       ),
-                  ],
+                    ],
+                  ),
                 ),
               ],
             ),
           ),
-
-          // Riwayat List
           Expanded(
             child: FutureBuilder<List<dynamic>>(
               future: _riwayatFuture,
@@ -154,10 +226,14 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
                 if (snapshot.hasError) {
                   return const Center(child: Text('Gagal memuat data'));
                 }
+
                 final data = snapshot.data ?? [];
                 if (data.isEmpty) {
                   return const Center(
-                    child: Text('Belum ada riwayat transaksi.'),
+                    child: Text(
+                      'Belum ada riwayat transaksi.',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   );
                 }
 
@@ -174,52 +250,92 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
                     ).format(DateTime.parse(item['tanggal']));
 
                     return Card(
+                      color: Colors.white,
+                      elevation: 3,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(14),
                       ),
-                      elevation: 2,
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: warna.withOpacity(0.15),
-                          child: Icon(
-                            tipe == 'masuk'
-                                ? Icons.arrow_downward
-                                : Icons.arrow_upward,
-                            color: warna,
-                          ),
-                        ),
-                        title: Text(
-                          item['nama_barang'] ?? '-',
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Row(
                           children: [
-                            Text('Kode: ${item['kode_barang']}'),
-                            Text('Jenis: ${item['jenis_barang']}'),
-                            Text('Jumlah: ${item['jumlah']}'),
-                            Text(
-                              'Total: Rp${item['total'].toStringAsFixed(0)}',
+                            CircleAvatar(
+                              backgroundColor: warna.withOpacity(0.15),
+                              radius: 24,
+                              child: Icon(
+                                tipe == 'masuk'
+                                    ? Icons.arrow_downward
+                                    : Icons.arrow_upward,
+                                color: warna,
+                                size: 20,
+                              ),
                             ),
-                            Text('Tanggal: $tanggal'),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    item['nama_barang'] ?? '-',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Wrap(
+                                    spacing: 8,
+                                    runSpacing: 4,
+                                    children: [
+                                      _buildDetailChip(
+                                        'Kode',
+                                        item['kode_barang'],
+                                      ),
+                                      _buildDetailChip(
+                                        'Jenis',
+                                        item['jenis_barang'],
+                                      ),
+                                      _buildDetailChip(
+                                        'Jumlah',
+                                        '${item['jumlah']}',
+                                      ),
+                                      _buildDetailChip(
+                                        'Total',
+                                        'Rp${item['total']}',
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    tanggal,
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: warna.withOpacity(0.15),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                tipe.toUpperCase(),
+                                style: TextStyle(
+                                  color: warna,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
                           ],
-                        ),
-                        trailing: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: warna.withOpacity(0.15),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            tipe.toUpperCase(),
-                            style: TextStyle(
-                              color: warna,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
                         ),
                       ),
                     );
@@ -230,6 +346,17 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildDetailChip(String label, String? value) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade200,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text('$label: $value', style: const TextStyle(fontSize: 12)),
     );
   }
 }
