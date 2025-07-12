@@ -43,7 +43,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F6FA),
+      backgroundColor: Colors.blue.shade600,
       body: Center(
         child: SingleChildScrollView(
           child: Padding(
@@ -70,13 +70,16 @@ class _LoginScreenState extends State<LoginScreen> {
                   style: TextStyle(
                     fontSize: 26,
                     fontWeight: FontWeight.bold,
-                    color: Colors.blue.shade700,
+                    color: const Color.fromARGB(255, 255, 255, 255),
                   ),
                 ),
                 const SizedBox(height: 8),
                 const Text(
                   "Silakan login untuk melanjutkan",
-                  style: TextStyle(fontSize: 16, color: Colors.black54),
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Color.fromARGB(255, 0, 0, 0),
+                  ),
                 ),
                 const SizedBox(height: 32),
                 Container(

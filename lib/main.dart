@@ -23,6 +23,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Bengkelku',
       theme: ThemeData(primarySwatch: Colors.teal),
+      debugShowCheckedModeBanner:
+          false, // <-- ini untuk hilangkan tulisan DEBUG
       initialRoute: '/splash',
       routes: {
         '/splash': (context) => const SplashScreen(),
