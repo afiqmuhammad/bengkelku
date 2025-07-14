@@ -82,9 +82,6 @@ packages:
     source: hosted
     version: "2.1.2"
   change_app_package_name:
-<<<<<<< HEAD
-    dependency: "direct main"
-=======
     dependency: "direct dev"
 >>>>>>> bed1c291bb024564a77edac7b1785e3c06ede87f
     description:
