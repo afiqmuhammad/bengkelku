@@ -26,7 +26,19 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.car_repair, size: 80, color: Colors.white),
+            // Ganti Icon dengan Image.asset
+            CircleAvatar(
+              radius: 44,
+              backgroundColor: Colors.blue.shade100,
+              child: ClipOval(
+                child: Image.asset(
+                  'assets/logo.png',
+                  width: 60,
+                  height: 60,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
             const SizedBox(height: 24),
             const Text(
               "Bengkelku",

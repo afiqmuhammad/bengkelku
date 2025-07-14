@@ -1,6 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 <uses-permission android:name="android.permission.INTERNET"/>
+<<<<<<< HEAD
 
+=======
+>>>>>>> bed1c291bb024564a77edac7b1785e3c06ede87f
     <application
         android:label="bengkelku"
         android:name="${applicationName}"
