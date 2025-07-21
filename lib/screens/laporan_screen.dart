@@ -199,7 +199,7 @@ class _LaporanScreenState extends State<LaporanScreen> {
           Container(
             width: double.infinity,
             padding: const EdgeInsets.only(
-              top: 5,
+              top: 20,
               left: 10,
               right: 10,
               bottom: 20,

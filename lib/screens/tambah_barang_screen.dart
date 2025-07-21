@@ -180,7 +180,7 @@ class _TambahBarangScreenState extends State<TambahBarangScreen> {
             children: [
               // HEADER (gradient & back button)
               Container(
-                padding: const EdgeInsets.only(top: 5, bottom: 20),
+                padding: const EdgeInsets.only(top: 20, bottom: 20),
                 width: double.infinity,
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
